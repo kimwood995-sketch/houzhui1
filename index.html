@@ -1,0 +1,1782 @@
+后缀练习
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后缀记忆小游戏 - 快乐学后缀</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #FF9E5B;
+            --primary-light: #FFBE8B;
+            --primary-dark: #FF7E2B;
+            --secondary: #5B8EFF;
+            --secondary-light: #8BAEFF;
+            --secondary-dark: #2B6EFF;
+            --accent: #5BE0A0;
+            --accent-light: #8EF2C0;
+            --accent-dark: #2BCE80;
+            --light: #FFF9E6;
+            --light-2: #FFF5F8;
+            --dark: #4A4A7D;
+            --dark-2: #2D2D5A;
+            --success: #5BE0A0;
+            --error: #FF6B8B;
+            --warning: #FFC145;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 30px;
+            --radius-xl: 40px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #FFF0E6 0%, #E6F0FF 50%, #F0FFE6 100%);
+            min-height: 100vh;
+            font-family: 'Nunito', sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body:before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 158, 91, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 30%, rgba(91, 142, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(91, 224, 160, 0.1) 0%, transparent 20%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            padding: 18px 35px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+        }
+        
+        .logo-container:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .logo-icon {
+            font-size: 3.2rem;
+            color: var(--primary);
+            margin-right: 20px;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1));
+        }
+        
+        .logo-text {
+            text-align: left;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 3.2rem;
+            margin-bottom: 8px;
+            text-shadow: 3px 3px 0px rgba(255, 158, 91, 0.2);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        /* 主游戏区域 */
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 35px;
+            margin-bottom: 50px;
+        }
+        
+        .game-panel {
+            flex: 1;
+            min-width: 320px;
+            background-color: white;
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        .game-panel:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-panel:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .panel-title {
+            color: var(--secondary);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+        }
+        
+        .panel-title i {
+            margin-right: 15px;
+            color: var(--primary);
+            background-color: rgba(255, 158, 91, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 后缀卡片 */
+        .suffix-card {
+            background: linear-gradient(to bottom right, var(--light-2), white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 8px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .suffix-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 158, 91, 0.05);
+            border-radius: 0 0 0 100%;
+        }
+        
+        .suffix-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .suffix-text {
+            font-size: 1.9rem;
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .suffix-text:before {
+            content: "✦";
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .meaning {
+            color: var(--secondary);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding: 10px 18px;
+            background-color: rgba(91, 142, 255, 0.1);
+            border-radius: var(--radius-sm);
+            display: inline-block;
+            font-weight: 600;
+            border: 2px dashed rgba(91, 142, 255, 0.2);
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        
+        .example {
+            background-color: white;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--accent-light);
+            transition: all 0.2s ease;
+        }
+        
+        .example:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            box-shadow: 0 5px 12px rgba(91, 224, 160, 0.2);
+        }
+        
+        /* 游戏区域 */
+        .game-area {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-area:before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 158, 91, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .game-area:after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(91, 142, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-box {
+            background-color: white;
+            padding: 18px 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            min-width: 120px;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-box:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+        
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--dark);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .question-box {
+            background: linear-gradient(135deg, #FFEFE6 0%, #E6EEFF 100%);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 35px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: 3px dashed rgba(255, 158, 91, 0.3);
+        }
+        
+        .question-box:before {
+            content: "❓";
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 4.5rem;
+            opacity: 0.15;
+        }
+        
+        .question-box:after {
+            content: "💡";
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 4rem;
+            opacity: 0.15;
+        }
+        
+        .question-text {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .question-suffix {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 18px 40px;
+            border-radius: 60px;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 0 rgba(255, 158, 91, 0.4);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .question-suffix:hover {
+            transform: scale(1.03);
+        }
+        
+        .question-suffix:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .question-suffix:hover:after {
+            animation: shine 1s ease;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .option {
+            background-color: white;
+            border: 3px solid transparent;
+            border-radius: var(--radius-md);
+            padding: 25px;
+            font-size: 1.4rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            z-index: -1;
+        }
+        
+        .option:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option.correct {
+            background: linear-gradient(135deg, rgba(91, 224, 160, 0.15), rgba(91, 224, 160, 0.25));
+            border-color: var(--accent);
+            color: var(--dark-2);
+            animation: pulse 0.6s ease;
+        }
+        
+        .option.incorrect {
+            background: linear-gradient(135deg, rgba(255, 107, 139, 0.15), rgba(255, 107, 139, 0.25));
+            border-color: var(--primary);
+            color: var(--dark-2);
+        }
+        
+        .feedback {
+            padding: 30px;
+            border-radius: var(--radius-md);
+            margin-top: 25px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+            z-index: 1;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.correct {
+            background: linear-gradient(135deg, rgba(91, 224, 160, 0.1), rgba(91, 224, 160, 0.2));
+            border: 3px solid var(--accent);
+        }
+        
+        .feedback.incorrect {
+            background: linear-gradient(135deg, rgba(255, 107, 139, 0.1), rgba(255, 107, 139, 0.2));
+            border: 3px solid var(--primary);
+        }
+        
+        .feedback:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        .feedback-title {
+            font-size: 1.8rem;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+        }
+        
+        .feedback-title i {
+            margin-right: 15px;
+            font-size: 2.2rem;
+        }
+        
+        .feedback-text {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+        
+        .examples-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 20px;
+        }
+        
+        .example-item {
+            background-color: white;
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            box-shadow: var(--shadow-sm);
+            border: 2px dashed var(--accent);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .example-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 0 rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #FFAA00);
+            color: white;
+        }
+        
+        .btn i {
+            margin-right: 12px;
+            font-size: 1.5rem;
+        }
+        
+        /* 进度条 */
+        .progress-container {
+            margin: 35px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-bar {
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .progress-text span:first-child {
+            color: var(--secondary);
+        }
+        
+        .progress-text span:last-child {
+            color: var(--primary);
+        }
+        
+        /* 浮动装饰元素 */
+        .floating-element {
+            position: fixed;
+            z-index: -1;
+            font-size: 8rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-element-1 {
+            top: 10%;
+            left: 5%;
+            color: var(--primary);
+            animation-delay: 0s;
+        }
+        
+        .floating-element-2 {
+            top: 70%;
+            right: 8%;
+            color: var(--secondary);
+            animation-delay: 1s;
+        }
+        
+        .floating-element-3 {
+            top: 40%;
+            left: 15%;
+            color: var(--accent);
+            animation-delay: 2s;
+        }
+        
+        .floating-element-4 {
+            top: 20%;
+            right: 15%;
+            color: var(--primary);
+            animation-delay: 3s;
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shine {
+            to { transform: translateX(100%); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .bounce {
+            animation: bounce 0.5s ease;
+        }
+        
+        .pulse {
+            animation: pulse 0.6s ease;
+        }
+        
+        /* 徽章系统 */
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .badge:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .badge.locked {
+            background: linear-gradient(135deg, #CCCCCC, #AAAAAA);
+            color: #888888;
+            filter: grayscale(1);
+        }
+        
+        .badge.unlocked {
+            background: linear-gradient(135deg, var(--warning), #FFAA00);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .badge-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        
+        .badge-tooltip:after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--dark);
+        }
+        
+        .badge:hover .badge-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.3rem;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 25px;
+            }
+            
+            .stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .question-suffix {
+                font-size: 2.2rem;
+                padding: 15px 30px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 16px 30px;
+                font-size: 1.2rem;
+            }
+            
+            .floating-element {
+                font-size: 5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-panel, .game-area {
+                padding: 25px;
+            }
+            
+            .stat-box {
+                min-width: 90px;
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 2.2rem;
+            }
+            
+            .suffix-text {
+                font-size: 1.6rem;
+            }
+            
+            .meaning {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* 完成动画 */
+        .completion-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .completion-animation.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: var(--primary);
+            animation: confettiFall 5s linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 后缀分类标签 */
+        .category-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .category-noun {
+            background-color: rgba(255, 158, 91, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(255, 158, 91, 0.3);
+        }
+        
+        .category-adjective {
+            background-color: rgba(91, 142, 255, 0.15);
+            color: var(--secondary);
+            border: 1px solid rgba(91, 142, 255, 0.3);
+        }
+        
+        .category-verb {
+            background-color: rgba(91, 224, 160, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(91, 224, 160, 0.3);
+        }
+        
+        .category-adverb {
+            background-color: rgba(255, 193, 69, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(255, 193, 69, 0.3);
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--primary-dark), var(--secondary-dark));
+        }
+    </style>
+</head>
+<body>
+    <!-- 浮动装饰元素 -->
+    <div class="floating-element floating-element-1">📚</div>
+    <div class="floating-element floating-element-2">✏️</div>
+    <div class="floating-element floating-element-3">🔤</div>
+    <div class="floating-element floating-element-4">🎯</div>
+    
+    <!-- 完成动画层 -->
+    <div class="completion-animation" id="completion-animation">
+        <!-- 彩色纸屑通过JS生成 -->
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fas fa-language logo-icon"></i>
+                <div class="logo-text">
+                    <h1>后缀记忆小游戏</h1>
+                    <div class="subtitle">通过游戏轻松记忆英语后缀，成为单词小达人！</div>
+                </div>
+            </div>
+            
+            <!-- 徽章系统 -->
+            <div class="badge-container">
+                <div class="badge unlocked" id="badge-1">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="badge-tooltip">开始学习</div>
+                </div>
+                <div class="badge locked" id="badge-2">
+                    <i class="fas fa-star-half-alt"></i>
+                    <div class="badge-tooltip">完成50%</div>
+                </div>
+                <div class="badge locked" id="badge-3">
+                    <i class="fas fa-trophy"></i>
+                    <div class="badge-tooltip">全部完成</div>
+                </div>
+                <div class="badge locked" id="badge-4">
+                    <i class="fas fa-crown"></i>
+                    <div class="badge-tooltip">高分王者</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="game-area">
+            <div class="game-header">
+                <div>
+                    <h2 class="panel-title"><i class="fas fa-gamepad"></i> 后缀记忆挑战</h2>
+                    <p style="font-size: 1.2rem; color: var(--dark-2);">选择正确的中文含义，学习后缀的用法！</p>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="score">0</div>
+                        <div class="stat-label">得分</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="current">1</div>
+                        <div class="stat-label">当前题</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="total">48</div>
+                        <div class="stat-label">总题数</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="streak">0</div>
+                        <div class="stat-label">连续正确</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="question-box">
+                <div class="question-text">这个后缀的含义是：</div>
+                <div class="question-suffix" id="current-suffix">-ability</div>
+                <div class="question-text">请选择正确的中文意思：</div>
+            </div>
+            
+            <div class="options" id="options-container">
+                <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <div class="feedback-title">
+                    <i class="fas fa-lightbulb"></i>
+                    <span id="feedback-title">回答正确！</span>
+                </div>
+                <p id="feedback-text" class="feedback-text">这个后缀表示"性质，能力"的意思。</p>
+                <div id="examples-container" class="examples-list">
+                    <!-- 示例词将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <span>学习进度</span>
+                    <span id="progress-text">1/48</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-warning" id="hint-btn">
+                    <i class="fas fa-lightbulb"></i> 提示
+                </button>
+                <button class="btn btn-secondary" id="review-btn">
+                    <i class="fas fa-book-open"></i> 复习
+                </button>
+                <button class="btn btn-primary" id="next-btn">
+                    <i class="fas fa-arrow-right"></i> 下一题
+                </button>
+                <button class="btn btn-accent" id="reset-btn">
+                    <i class="fas fa-redo"></i> 重新开始
+                </button>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-panel">
+                <h2 class="panel-title"><i class="fas fa-list-ul"></i> 后缀列表</h2>
+                <div id="suffix-list">
+                    <!-- 后缀列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="game-panel">
+                <h2 class="panel-title"><i class="fas fa-trophy"></i> 游戏规则</h2>
+                <div class="suffix-card">
+                    <div class="suffix-text">🎮 如何玩</div>
+                    <p>1. 系统会显示一个英语后缀</p>
+                    <p>2. 从四个选项中选择正确的中文含义</p>
+                    <p>3. 答对得10分，连续答对额外加分</p>
+                    <p>4. 答错可以查看正确答案和例子</p>
+                    <p>5. 完成所有后缀后查看你的总分</p>
+                </div>
+                
+                <div class="suffix-card">
+                    <div class="suffix-text">🎯 学习目标</div>
+                    <p>• 掌握48个常见英语后缀的含义</p>
+                    <p>• 通过例子理解后缀的用法</p>
+                    <p>• 提高英语单词理解和记忆能力</p>
+                    <p>• 培养英语后缀分析和应用能力</p>
+                </div>
+                
+                <div class="suffix-card">
+                    <div class="suffix-text">🏆 奖励机制</div>
+                    <p>• 得分450分以上：单词小达人 🏅</p>
+                    <p>• 得分350-449分：单词小能手 🥈</p>
+                    <p>• 得分250-349分：单词小新手 🥉</p>
+                    <p>• 完成所有练习：学习小勇士 ✨</p>
+                    <p>• 连续答对10题：连击高手 ⚡</p>
+                </div>
+                
+                <div class="suffix-card">
+                    <div class="suffix-text">💡 学习技巧</div>
+                    <p>• 注意观察后缀在例子中的用法</p>
+                    <p>• 尝试用后缀自己组新词</p>
+                    <p>• 按词性分类记忆后缀</p>
+                    <p>• 每天练习10分钟效果最好</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer style="text-align: center; padding: 40px 0; color: var(--dark);">
+            <p style="font-size: 1.2rem; margin-bottom: 15px; font-weight: 700;">© 2023 后缀记忆小游戏 | 为小学生设计的趣味学习工具</p>
+            <p style="font-size: 1.1rem;">学习英语后缀，让背单词变得更有趣！每天进步一点点，成为英语小达人！</p>
+            <div style="margin-top: 25px; display: flex; justify-content: center; gap: 20px;">
+                <div style="display: inline-flex; align-items: center; background-color: white; padding: 10px 20px; border-radius: 50px; box-shadow: var(--shadow-sm);">
+                    <i class="fas fa-heart" style="color: var(--primary); margin-right: 8px;"></i>
+                    <span>用心设计的学习游戏</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; background-color: white; padding: 10px 20px; border-radius: 50px; box-shadow: var(--shadow-sm);">
+                    <i class="fas fa-graduation-cap" style="color: var(--secondary); margin-right: 8px;"></i>
+                    <span>适合小学生的英语学习</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 后缀数据 - 包含所有文档中的后缀，按词性分类
+        const suffixes = [
+            // 名词后缀
+            { suffix: "-ability/-ibility", meaning: "性质，能力", category: "noun", examples: ["possibility 可能性", "flexibility 灵活性", "capability 能力"] },
+            { suffix: "-age", meaning: "集合/状态/行为结果", category: "noun", examples: ["village 村庄", "marriage 婚姻", "package 包裹"] },
+            { suffix: "-al/-ial", meaning: "行为/人/物", category: "noun", examples: ["arrival 到达", "professional 专业人员", "manual 手册"] },
+            { suffix: "-ance/-ancy/-ence", meaning: "状态，性质", category: "noun", examples: ["importance 重要性", "patience 耐心", "difference 不同"] },
+            { suffix: "-ation/-ion/-sion", meaning: "行为，过程，结果", category: "noun", examples: ["education 教育", "decision 决定", "action 行动"] },
+            { suffix: "-dom", meaning: "领域，状态", category: "noun", examples: ["freedom 自由", "kingdom 王国", "wisdom 智慧"] },
+            { suffix: "-ee/-er/-or/-ist/-ian/-ician", meaning: "人", category: "noun", examples: ["employee 雇员", "teacher 教师", "doctor 医生", "artist 艺术家", "musician 音乐家", "technician 技术员"] },
+            { suffix: "-ess", meaning: "女性", category: "noun", examples: ["actress 女演员", "waitress 女服务员", "princess 公主"] },
+            { suffix: "-hood", meaning: "资格，时期", category: "noun", examples: ["childhood 童年", "brotherhood 兄弟关系", "neighborhood 邻里"] },
+            { suffix: "-ics", meaning: "学科", category: "noun", examples: ["physics 物理学", "mathematics 数学", "economics 经济学"] },
+            { suffix: "-ing", meaning: "行为，状态，物品", category: "noun", examples: ["swimming 游泳", "feeling 感觉", "building 建筑物"] },
+            { suffix: "-ism", meaning: "主义，行为", category: "noun", examples: ["socialism 社会主义", "criticism 批评", "tourism 旅游"] },
+            { suffix: "-ment", meaning: "行为，结果，物", category: "noun", examples: ["development 发展", "government 政府", "equipment 设备"] },
+            { suffix: "-ness", meaning: "性质，状态", category: "noun", examples: ["happiness 幸福", "darkness 黑暗", "kindness 善良"] },
+            { suffix: "-ship", meaning: "关系，状态，资格", category: "noun", examples: ["friendship 友谊", "leadership 领导能力", "membership 会员资格"] },
+            { suffix: "-ty", meaning: "状态；-ty表'十'", category: "noun", examples: ["safety 安全", "loyalty 忠诚", "twenty 二十"] },
+            { suffix: "-y", meaning: "状态，行为", category: "noun", examples: ["victory 胜利", "discovery 发现", "inquiry 询问"] },
+            
+            // 形容词后缀
+            { suffix: "-able/-ible", meaning: "可...的", category: "adjective", examples: ["comfortable 舒适的", "visible 可见的", "possible 可能的"] },
+            { suffix: "-al/-ial/-ual", meaning: "...的", category: "adjective", examples: ["national 国家的", "special 特殊的", "actual 实际的"] },
+            { suffix: "-ant/-ent", meaning: "...的", category: "adjective", examples: ["important 重要的", "different 不同的", "excellent 优秀的"] },
+            { suffix: "-ate", meaning: "具有...性质的", category: "adjective", examples: ["fortunate 幸运的", "considerate 体贴的", "accurate 准确的"] },
+            { suffix: "-cular/-icular", meaning: "属于...的", category: "adjective", examples: ["particular 特定的", "spectacular 壮观的", "molecular 分子的"] },
+            { suffix: "-ed", meaning: "有...的，已...的", category: "adjective", examples: ["excited 兴奋的", "interested 感兴趣的", "married 已婚的"] },
+            { suffix: "-en", meaning: "由...制成的", category: "adjective", examples: ["wooden 木制的", "golden 金色的", "woolen 羊毛的"] },
+            { suffix: "-ful", meaning: "充满...的", category: "adjective", examples: ["beautiful 美丽的", "helpful 有帮助的", "careful 小心的"] },
+            { suffix: "-ic", meaning: "...的", category: "adjective", examples: ["historic 历史的", "specific 具体的", "scientific 科学的"] },
+            { suffix: "-ish", meaning: "有...性质的", category: "adjective", examples: ["childish 幼稚的", "selfish 自私的", "foolish 愚蠢的"] },
+            { suffix: "-ive", meaning: "有...性质的", category: "adjective", examples: ["active 活跃的", "creative 有创造力的", "expensive 昂贵的"] },
+            { suffix: "-less", meaning: "无...的", category: "adjective", examples: ["hopeless 无望的", "careless 粗心的", "endless 无尽的"] },
+            { suffix: "-ly", meaning: "有...性质的", category: "adjective", examples: ["friendly 友好的", "lovely 可爱的", "lively 活泼的"] },
+            { suffix: "-some", meaning: "令人...的", category: "adjective", examples: ["handsome 英俊的", "troublesome 麻烦的", "awesome 极好的"] },
+            { suffix: "-y", meaning: "多...的", category: "adjective", examples: ["sunny 晴朗的", "rainy 下雨的", "sleepy 困倦的"] },
+            
+            // 动词后缀
+            { suffix: "-ate", meaning: "做，使", category: "verb", examples: ["celebrate 庆祝", "activate 激活", "communicate 交流"] },
+            { suffix: "-en", meaning: "使", category: "verb", examples: ["widen 加宽", "strengthen 加强", "lengthen 延长"] },
+            { suffix: "-fy/-ify", meaning: "使...化", category: "verb", examples: ["simplify 简化", "beautify 美化", "classify 分类"] },
+            { suffix: "-ise/-ize", meaning: "使...化", category: "verb", examples: ["organize 组织", "realize 意识到", "modernize 现代化"] },
+            { suffix: "-ish", meaning: "使", category: "verb", examples: ["establish 建立", "finish 完成", "publish 出版"] },
+            
+            // 副词后缀
+            { suffix: "-ably", meaning: "...地", category: "adverb", examples: ["comfortably 舒适地", "possibly 可能地", "reasonably 合理地"] },
+            { suffix: "-ly", meaning: "...地", category: "adverb", examples: ["quickly 快速地", "happily 快乐地", "easily 容易地"] },
+            { suffix: "-ward", meaning: "向...地", category: "adverb", examples: ["forward 向前", "backward 向后", "homeward 向家"] }
+        ];
+
+        // 游戏状态
+        let gameState = {
+            score: 0,
+            currentQuestionIndex: 0,
+            totalQuestions: suffixes.length,
+            currentSuffix: null,
+            correctMeaning: "",
+            selectedOption: null,
+            isAnswered: false,
+            usedSuffixes: new Set(),
+            allOptions: [],
+            correctStreak: 0,
+            maxStreak: 0,
+            hintsUsed: 0,
+            badges: {
+                started: true,
+                halfway: false,
+                completed: false,
+                highScore: false
+            }
+        };
+
+        // DOM 元素
+        const scoreElement = document.getElementById('score');
+        const currentElement = document.getElementById('current');
+        const totalElement = document.getElementById('total');
+        const streakElement = document.getElementById('streak');
+        const currentSuffixElement = document.getElementById('current-suffix');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackElement = document.getElementById('feedback');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const examplesContainer = document.getElementById('examples-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const suffixList = document.getElementById('suffix-list');
+        const completionAnimation = document.getElementById('completion-animation');
+
+        // 初始化游戏
+        function initGame() {
+            gameState.score = 0;
+            gameState.currentQuestionIndex = 0;
+            gameState.correctStreak = 0;
+            gameState.hintsUsed = 0;
+            gameState.usedSuffixes.clear();
+            gameState.badges.started = true;
+            gameState.badges.halfway = false;
+            gameState.badges.completed = false;
+            gameState.badges.highScore = false;
+            
+            updateScore();
+            updateStreak();
+            updateProgress();
+            updateBadges();
+            generateSuffixList();
+            loadQuestion();
+            
+            // 隐藏完成动画
+            completionAnimation.classList.remove('show');
+        }
+
+        // 生成后缀列表
+        function generateSuffixList() {
+            suffixList.innerHTML = '';
+            
+            // 按词性分类显示
+            const categories = {
+                "noun": "名词后缀",
+                "adjective": "形容词后缀", 
+                "verb": "动词后缀",
+                "adverb": "副词后缀"
+            };
+            
+            Object.entries(categories).forEach(([categoryKey, categoryName]) => {
+                // 分类标题
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'panel-title';
+                categoryTitle.style.fontSize = '1.6rem';
+                categoryTitle.style.marginTop = '25px';
+                categoryTitle.style.marginBottom = '15px';
+                categoryTitle.innerHTML = `<i class="fas fa-tag"></i> ${categoryName}`;
+                suffixList.appendChild(categoryTitle);
+                
+                // 该分类下的所有后缀
+                const categorySuffixes = suffixes.filter(s => s.category === categoryKey);
+                categorySuffixes.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'suffix-card';
+                    
+                    // 分类标签
+                    let categoryTag = '';
+                    switch(item.category) {
+                        case 'noun': categoryTag = '<span class="category-tag category-noun">名词</span>'; break;
+                        case 'adjective': categoryTag = '<span class="category-tag category-adjective">形容词</span>'; break;
+                        case 'verb': categoryTag = '<span class="category-tag category-verb">动词</span>'; break;
+                        case 'adverb': categoryTag = '<span class="category-tag category-adverb">副词</span>'; break;
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="suffix-text">${item.suffix} ${categoryTag}</div>
+                        <div class="meaning">${item.meaning}</div>
+                        <div class="examples">
+                            ${item.examples.map(example => `<div class="example">${example}</div>`).join('')}
+                        </div>
+                    `;
+                    suffixList.appendChild(card);
+                });
+            });
+        }
+
+        // 更新分数显示
+        function updateScore() {
+            scoreElement.textContent = gameState.score;
+            currentElement.textContent = gameState.currentQuestionIndex + 1;
+            totalElement.textContent = gameState.totalQuestions;
+        }
+
+        // 更新连击显示
+        function updateStreak() {
+            streakElement.textContent = gameState.correctStreak;
+            if (gameState.correctStreak > gameState.maxStreak) {
+                gameState.maxStreak = gameState.correctStreak;
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = ((gameState.currentQuestionIndex) / gameState.totalQuestions) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${gameState.currentQuestionIndex + 1}/${gameState.totalQuestions}`;
+            
+            // 检查是否达到一半
+            if (gameState.currentQuestionIndex >= gameState.totalQuestions / 2 && !gameState.badges.halfway) {
+                gameState.badges.halfway = true;
+                updateBadges();
+            }
+        }
+
+        // 更新徽章显示
+        function updateBadges() {
+            const badges = ['badge-1', 'badge-2', 'badge-3', 'badge-4'];
+            const badgeStates = [
+                gameState.badges.started,
+                gameState.badges.halfway,
+                gameState.badges.completed,
+                gameState.badges.highScore
+            ];
+            
+            badges.forEach((badgeId, index) => {
+                const badge = document.getElementById(badgeId);
+                if (badgeStates[index]) {
+                    badge.classList.remove('locked');
+                    badge.classList.add('unlocked');
+                } else {
+                    badge.classList.remove('unlocked');
+                    badge.classList.add('locked');
+                }
+            });
+        }
+
+        // 加载问题
+        function loadQuestion() {
+            // 如果已经使用完所有后缀，重新开始
+            if (gameState.usedSuffixes.size >= suffixes.length) {
+                showCompletionAnimation();
+                return;
+            }
+
+            // 随机选择一个未使用过的后缀
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * suffixes.length);
+            } while (gameState.usedSuffixes.has(randomIndex) && gameState.usedSuffixes.size < suffixes.length);
+
+            gameState.usedSuffixes.add(randomIndex);
+            const suffixObj = suffixes[randomIndex];
+            
+            gameState.currentSuffix = suffixObj.suffix;
+            gameState.correctMeaning = suffixObj.meaning;
+            gameState.currentQuestionIndex = gameState.usedSuffixes.size - 1;
+            gameState.isAnswered = false;
+            gameState.selectedOption = null;
+            
+            // 更新显示
+            currentSuffixElement.textContent = gameState.currentSuffix;
+            updateProgress();
+            
+            // 生成选项
+            generateOptions(suffixObj.meaning);
+            
+            // 重置反馈区域
+            feedbackElement.classList.remove('show', 'correct', 'incorrect');
+            optionsContainer.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+                option.style.pointerEvents = 'auto';
+                option.style.opacity = '1';
+                option.style.transform = 'none';
+            });
+            
+            // 更新按钮状态
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.7';
+            hintBtn.disabled = false;
+            hintBtn.style.opacity = '1';
+        }
+
+        // 生成选项
+        function generateOptions(correctMeaning) {
+            optionsContainer.innerHTML = '';
+            
+            // 收集所有可能的含义（去重）
+            const allMeanings = [...new Set(suffixes.map(p => p.meaning))];
+            
+            // 确保正确选项在其中
+            if (!allMeanings.includes(correctMeaning)) {
+                allMeanings.push(correctMeaning);
+            }
+            
+            // 随机选择3个错误选项
+            const wrongMeanings = allMeanings.filter(m => m !== correctMeaning);
+            const shuffledWrong = wrongMeanings.sort(() => 0.5 - Math.random()).slice(0, 3);
+            
+            // 合并选项并随机排序
+            const options = [correctMeaning, ...shuffledWrong].sort(() => 0.5 - Math.random());
+            gameState.allOptions = options;
+            
+            // 生成选项按钮
+            options.forEach((meaning, index) => {
+                const option = document.createElement('div');
+                option.className = 'option';
+                option.textContent = meaning;
+                option.style.animationDelay = `${index * 0.1}s`;
+                option.style.animation = 'fadeIn 0.5s ease forwards';
+                option.style.opacity = '0';
+                option.addEventListener('click', () => selectOption(meaning, option));
+                optionsContainer.appendChild(option);
+            });
+            
+            // 触发动画
+            setTimeout(() => {
+                optionsContainer.querySelectorAll('.option').forEach(opt => {
+                    opt.style.animation = 'none';
+                    setTimeout(() => {
+                        opt.style.opacity = '1';
+                    }, 10);
+                });
+            }, 100);
+        }
+
+        // 选择选项
+        function selectOption(meaning, optionElement) {
+            if (gameState.isAnswered) return;
+            
+            gameState.isAnswered = true;
+            gameState.selectedOption = meaning;
+            
+            // 禁用所有选项
+            optionsContainer.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // 显示反馈
+            const isCorrect = meaning === gameState.correctMeaning;
+            optionElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            // 如果选错，高亮正确选项
+            if (!isCorrect) {
+                optionsContainer.querySelectorAll('.option').forEach(opt => {
+                    if (opt.textContent === gameState.correctMeaning) {
+                        opt.classList.add('correct');
+                    }
+                });
+                gameState.correctStreak = 0;
+            } else {
+                // 答对了，增加分数和连击
+                gameState.score += 10;
+                
+                // 连击奖励
+                gameState.correctStreak++;
+                if (gameState.correctStreak > 1) {
+                    const streakBonus = Math.min(gameState.correctStreak * 2, 10);
+                    gameState.score += streakBonus;
+                    
+                    // 显示连击提示
+                    if (gameState.correctStreak >= 3) {
+                        const streakMsg = document.createElement('div');
+                        streakMsg.textContent = `连击x${gameState.correctStreak}！+${streakBonus}分`;
+                        streakMsg.style.position = 'absolute';
+                        streakMsg.style.top = '20px';
+                        streakMsg.style.right = '20px';
+                        streakMsg.style.background = 'linear-gradient(135deg, #FFC145, #FFAA00)';
+                        streakMsg.style.color = 'white';
+                        streakMsg.style.padding = '10px 20px';
+                        streakMsg.style.borderRadius = '50px';
+                        streakMsg.style.fontWeight = 'bold';
+                        streakMsg.style.boxShadow = '0 5px 15px rgba(255, 193, 69, 0.5)';
+                        streakMsg.style.zIndex = '100';
+                        streakMsg.style.animation = 'fadeIn 0.5s ease, bounce 0.5s ease 0.5s';
+                        document.querySelector('.game-area').appendChild(streakMsg);
+                        
+                        setTimeout(() => {
+                            streakMsg.style.animation = 'fadeIn 0.5s ease reverse forwards';
+                            setTimeout(() => streakMsg.remove(), 500);
+                        }, 2000);
+                    }
+                }
+            }
+            
+            updateScore();
+            updateStreak();
+            
+            // 显示反馈信息
+            showFeedback(isCorrect);
+            
+            // 启用下一题按钮
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+            hintBtn.disabled = true;
+            hintBtn.style.opacity = '0.7';
+            
+            // 检查是否完成所有题目
+            if (gameState.usedSuffixes.size >= suffixes.length) {
+                setTimeout(() => {
+                    gameState.badges.completed = true;
+                    if (gameState.score >= 450) {
+                        gameState.badges.highScore = true;
+                    }
+                    updateBadges();
+                    showCompletionAnimation();
+                }, 1500);
+            }
+        }
+
+        // 显示反馈
+        function showFeedback(isCorrect) {
+            const suffixObj = suffixes.find(p => p.suffix === gameState.currentSuffix);
+            
+            feedbackTitle.textContent = isCorrect ? '回答正确！' : '回答错误！';
+            feedbackTitle.innerHTML = `<i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i> ${feedbackTitle.textContent}`;
+            feedbackText.textContent = `后缀 "${gameState.currentSuffix}" 表示"${gameState.correctMeaning}"的意思。`;
+            
+            // 显示词性分类
+            let categoryText = '';
+            switch(suffixObj.category) {
+                case 'noun': categoryText = '名词后缀'; break;
+                case 'adjective': categoryText = '形容词后缀'; break;
+                case 'verb': categoryText = '动词后缀'; break;
+                case 'adverb': categoryText = '副词后缀'; break;
+            }
+            
+            // 显示例子
+            examplesContainer.innerHTML = '';
+            if (suffixObj && suffixObj.examples) {
+                suffixObj.examples.forEach(example => {
+                    const exampleItem = document.createElement('div');
+                    exampleItem.className = 'example-item';
+                    exampleItem.textContent = example;
+                    examplesContainer.appendChild(exampleItem);
+                });
+            }
+            
+            // 添加词性信息
+            const categoryInfo = document.createElement('div');
+            categoryInfo.className = 'example-item';
+            categoryInfo.style.backgroundColor = getCategoryColor(suffixObj.category);
+            categoryInfo.style.color = 'white';
+            categoryInfo.style.border = 'none';
+            categoryInfo.textContent = `📚 ${categoryText}`;
+            examplesContainer.prepend(categoryInfo);
+            
+            feedbackElement.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // 获取分类颜色
+        function getCategoryColor(category) {
+            switch(category) {
+                case 'noun': return 'var(--primary)';
+                case 'adjective': return 'var(--secondary)';
+                case 'verb': return 'var(--accent)';
+                case 'adverb': return 'var(--warning)';
+                default: return 'var(--dark)';
+            }
+        }
+
+        // 提示功能
+        function showHint() {
+            if (gameState.isAnswered || gameState.hintsUsed >= 3) return;
+            
+            // 移除两个错误选项
+            const options = optionsContainer.querySelectorAll('.option');
+            const wrongOptions = Array.from(options).filter(opt => 
+                opt.textContent !== gameState.correctMeaning && 
+                opt.style.opacity !== '0.3'
+            );
+            
+            // 随机选择两个错误选项淡化
+            if (wrongOptions.length >= 2) {
+                const toFade = wrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+                toFade.forEach(opt => {
+                    opt.style.opacity = '0.3';
+                    opt.style.pointerEvents = 'none';
+                    opt.style.transform = 'scale(0.95)';
+                });
+                
+                // 分数减少作为提示代价
+                gameState.score = Math.max(0, gameState.score - 5);
+                gameState.hintsUsed++;
+                updateScore();
+                
+                // 显示提示使用反馈
+                const hintFeedback = document.createElement('div');
+                hintFeedback.textContent = `使用了提示 (-5分)`;
+                hintFeedback.style.position = 'absolute';
+                hintFeedback.style.top = '10px';
+                hintFeedback.style.left = '50%';
+                hintFeedback.style.transform = 'translateX(-50%)';
+                hintFeedback.style.background = 'rgba(255, 193, 69, 0.9)';
+                hintFeedback.style.color = 'white';
+                hintFeedback.style.padding = '8px 15px';
+                hintFeedback.style.borderRadius = '50px';
+                hintFeedback.style.fontWeight = 'bold';
+                hintFeedback.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+                hintFeedback.style.zIndex = '100';
+                hintFeedback.style.animation = 'fadeIn 0.5s ease';
+                document.querySelector('.game-area').appendChild(hintFeedback);
+                
+                setTimeout(() => {
+                    hintFeedback.style.animation = 'fadeIn 0.5s ease reverse forwards';
+                    setTimeout(() => hintFeedback.remove(), 500);
+                }, 1500);
+            }
+        }
+
+        // 复习功能
+        function showReview() {
+            // 显示当前后缀的详细信息
+            const suffixObj = suffixes.find(p => p.suffix === gameState.currentSuffix);
+            if (!suffixObj) return;
+            
+            let categoryText = '';
+            switch(suffixObj.category) {
+                case 'noun': categoryText = '名词后缀'; break;
+                case 'adjective': categoryText = '形容词后缀'; break;
+                case 'verb': categoryText = '动词后缀'; break;
+                case 'adverb': categoryText = '副词后缀'; break;
+            }
+            
+            alert(`复习: ${suffixObj.suffix}\n词性: ${categoryText}\n含义: ${suffixObj.meaning}\n例子:\n${suffixObj.examples.join('\n')}`);
+        }
+
+        // 显示完成动画
+        function showCompletionAnimation() {
+            // 创建彩色纸屑
+            completionAnimation.innerHTML = '';
+            const colors = ['#FF9E5B', '#5B8EFF', '#5BE0A0', '#FFC145'];
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.animationDelay = `${Math.random() * 5}s`;
+                confetti.style.width = `${Math.random() * 15 + 5}px`;
+                confetti.style.height = confetti.style.width;
+                completionAnimation.appendChild(confetti);
+            }
+            
+            // 创建完成消息
+            const message = document.createElement('div');
+            message.style.textAlign = 'center';
+            message.style.color = 'var(--dark)';
+            message.style.maxWidth = '800px';
+            message.style.padding = '40px';
+            
+            let titleText, messageText;
+            if (gameState.score >= 450) {
+                titleText = '🏅 恭喜你！单词小达人！';
+                messageText = `你获得了${gameState.score}分，真是太棒了！你已经完全掌握了这些后缀！`;
+            } else if (gameState.score >= 350) {
+                titleText = '🥈 太厉害了！单词小能手！';
+                messageText = `你获得了${gameState.score}分，表现非常出色！继续加油，下次争取更高分！`;
+            } else if (gameState.score >= 250) {
+                titleText = '🥉 做得很好！单词小新手！';
+                messageText = `你获得了${gameState.score}分，已经掌握了大部分后缀！再多练习几次会更好！`;
+            } else {
+                titleText = '✨ 完成练习！学习小勇士！';
+                messageText = `你获得了${gameState.score}分，完成了所有后缀的学习！继续努力，下次一定会更好！`;
+            }
+            
+            message.innerHTML = `
+                <h1 style="font-size: 3.5rem; margin-bottom: 30px; color: var(--primary);">${titleText}</h1>
+                <div style="font-size: 2rem; margin-bottom: 30px; color: var(--secondary);">最终得分: <strong>${gameState.score}</strong></div>
+                <div style="font-size: 1.5rem; margin-bottom: 15px; color: var(--accent);">最高连击: <strong>${gameState.maxStreak}</strong> 次</div>
+                <p style="font-size: 1.5rem; margin-bottom: 30px;">${messageText}</p>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 40px;">
+                    <button id="play-again-btn" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 18px 35px; border-radius: var(--radius-lg); font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,0.15);">再玩一次</button>
+                    <button id="close-completion-btn" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; border: none; padding: 18px 35px; border-radius: var(--radius-lg); font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,0.15);">查看结果</button>
+                </div>
+            `;
+            
+            completionAnimation.appendChild(message);
+            completionAnimation.classList.add('show');
+            
+            // 添加按钮事件
+            document.getElementById('play-again-btn').addEventListener('click', () => {
+                completionAnimation.classList.remove('show');
+                setTimeout(() => initGame(), 500);
+            });
+            
+            document.getElementById('close-completion-btn').addEventListener('click', () => {
+                completionAnimation.classList.remove('show');
+            });
+        }
+
+        // 事件监听
+        nextBtn.addEventListener('click', () => {
+            if (gameState.usedSuffixes.size < suffixes.length) {
+                loadQuestion();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (confirm('确定要重新开始游戏吗？当前进度将丢失。')) {
+                initGame();
+            }
+        });
+
+        hintBtn.addEventListener('click', showHint);
+        
+        reviewBtn.addEventListener('click', showReview);
+
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>
